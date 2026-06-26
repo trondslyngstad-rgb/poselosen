@@ -3,800 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#FFFBF4">
-<meta property="og:title" content="Poselosen 🛒">
-<meta property="og:description" content="Sorter varene i riktig handlepose før båndet tar dem! Klarer du å holde tritt?">
 <title>Poselosen 🛒</title>
 <style>
-/* ── Reset & base ─────────────────────────────────────────────────────────── */
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
-html,body{height:100%;background:#F0EBE1;display:flex;justify-content:center;align-items:flex-start;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;}
-
-/* ── Game shell ───────────────────────────────────────────────────────────── */
-#G{
-  width:100%;
-  max-width:420px;
-  min-height:100vh;
-  background:#FFFBF4;
-  display:flex;
-  flex-direction:column;
-  position:relative;
-  overflow:hidden;
-  box-shadow:0 0 40px rgba(0,0,0,.12);
-}
-
-/* ── HUD ──────────────────────────────────────────────────────────────────── */
-#hud{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px 14px 6px;
-  background:#fff;
-  border-bottom:1px solid #EDE6D8;
-  flex-shrink:0;
-}
-.hb{display:flex;flex-direction:column;align-items:center;gap:1px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#F0EBE1;display:flex;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;}
+#G{width:100%;max-width:420px;background:#FFFBF4;min-height:100vh;display:flex;flex-direction:column;position:relative;box-shadow:0 0 40px rgba(0,0,0,.12);}
+#hud{display:none;justify-content:space-between;align-items:center;padding:10px 14px 6px;background:#fff;border-bottom:1px solid #EDE6D8;flex-shrink:0;}
+.hb{display:flex;flex-direction:column;align-items:center;}
 .hl{font-size:9px;color:#A89880;letter-spacing:.8px;text-transform:uppercase;font-weight:600;}
-.hv{font-size:17px;font-weight:700;color:#1A1A1A;line-height:1;}
-#share-hud-btn{
-  background:none;border:1.5px solid #D0C8BC;border-radius:8px;
-  padding:5px 9px;cursor:pointer;font-size:15px;color:#6B6B6B;
-  display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;
-}
-#share-hud-btn:active{background:#F5F0E8;}
-
-/* ── Combo bar ────────────────────────────────────────────────────────────── */
-#cbar{height:3px;background:#EDE6D8;flex-shrink:0;}
+.hv{font-size:17px;font-weight:700;color:#1A1A1A;}
+#share-btn{background:none;border:1.5px solid #D0C8BC;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;font-weight:600;color:#6B6B6B;}
+#cbar{display:none;height:3px;background:#EDE6D8;flex-shrink:0;}
 #cfill{height:100%;width:0%;background:#E67E22;transition:width .25s;}
-
-/* ── Patience row ─────────────────────────────────────────────────────────── */
-#pmrow{display:flex;align-items:center;gap:7px;padding:4px 14px 3px;flex-shrink:0;}
+#pmrow{display:none;align-items:center;gap:7px;padding:4px 14px 3px;flex-shrink:0;}
 #pmlbl{font-size:10px;color:#A89880;white-space:nowrap;font-weight:600;}
 #pmbar{flex:1;height:7px;background:#EDE6D8;border-radius:4px;overflow:hidden;}
-#pmfill{height:100%;width:100%;background:#2D6A3F;border-radius:4px;transition:background .3s;}
-
-/* ── Belt ─────────────────────────────────────────────────────────────────── */
-#belt{
-  position:relative;
-  height:88px;
-  background:#D4C9B8;
-  border-top:5px solid #B8A890;
-  border-bottom:5px solid #B8A890;
-  overflow:hidden;
-  flex-shrink:0;
-}
+#pmfill{height:100%;width:100%;background:#2D6A3F;border-radius:4px;}
+#belt{display:none;position:relative;height:88px;background:#D4C9B8;border-top:5px solid #B8A890;border-bottom:5px solid #B8A890;overflow:hidden;flex-shrink:0;}
 #bcanvas{position:absolute;inset:0;pointer-events:none;}
-#stopbtn{
-  position:absolute;right:8px;top:50%;transform:translateY(-50%);
-  z-index:20;background:#fff;border:1.5px solid #CCC;border-radius:9px;
-  padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;color:#555;
-  box-shadow:0 1px 3px rgba(0,0,0,.1);
-}
+#stopbtn{position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:20;background:#fff;border:1.5px solid #CCC;border-radius:9px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;color:#555;}
 #stopbtn.on{background:#FFF3E0;border-color:#E67E22;color:#A84300;}
-
-/* ── Power-ups ────────────────────────────────────────────────────────────── */
-#purow{
-  display:flex;gap:5px;padding:5px 8px 4px;
-  background:#F5F0E8;border-bottom:1px solid #EDE6D8;
-  justify-content:center;flex-shrink:0;
-}
-.pu{
-  background:#fff;border:1.5px solid #D8D0C4;border-radius:9px;
-  padding:5px 11px;font-size:11px;cursor:pointer;
-  display:flex;align-items:center;gap:3px;color:#3A3A3A;font-weight:600;
-}
+#purow{display:none;gap:5px;padding:5px 8px 4px;background:#F5F0E8;border-bottom:1px solid #EDE6D8;justify-content:center;flex-shrink:0;}
+.pu{background:#fff;border:1.5px solid #D8D0C4;border-radius:9px;padding:5px 11px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:3px;color:#3A3A3A;font-weight:600;}
 .pu:disabled{opacity:.3;cursor:default;}
-.pc{
-  background:#EDE6D8;border-radius:4px;
-  padding:0 5px;font-size:10px;min-width:15px;text-align:center;
-}
-
-/* ── Bins ─────────────────────────────────────────────────────────────────── */
-#bins{
-  display:flex;flex-wrap:wrap;justify-content:center;
-  gap:5px;padding:7px 7px 5px;background:#F5F0E8;
-  flex-shrink:0;
-}
-.bin{
-  flex:0 0 calc(33.3% - 5px);max-width:118px;
-  border-radius:13px;border:2.5px dashed rgba(0,0,0,.14);
-  background:#fff;padding:6px 3px 5px;
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  cursor:pointer;transition:transform .1s,border-color .12s,background .12s;
-  min-height:68px;
-}
+.pc{background:#EDE6D8;border-radius:4px;padding:0 5px;font-size:10px;min-width:15px;text-align:center;}
+#bins{display:none;flex-wrap:wrap;justify-content:center;gap:5px;padding:7px;background:#F5F0E8;flex-shrink:0;}
+.bin{flex:0 0 calc(33.3% - 5px);max-width:118px;border-radius:13px;border:2.5px dashed rgba(0,0,0,.14);background:#fff;padding:6px 3px 5px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:transform .1s,border-color .12s,background .12s;min-height:68px;}
 .bin.hl2{border-color:#2D6A3F;background:#EAF3DE;transform:scale(1.06);}
 .bin.wf{border-color:#C0392B;background:#FDEDEC;animation:shk .28s;}
 .bin.cf{border-color:#2D6A3F;background:#D5E8D4;}
 .be{font-size:22px;line-height:1;}
-.bl{font-size:9px;font-weight:700;color:#5A5048;text-align:center;line-height:1.2;letter-spacing:.2px;}
+.bl{font-size:9px;font-weight:700;color:#5A5048;text-align:center;line-height:1.2;}
 @keyframes shk{0%,100%{transform:translateX(0)}30%{transform:translateX(-5px)}70%{transform:translateX(5px)}}
-
-/* ── Customer queue ───────────────────────────────────────────────────────── */
-#qrow{
-  height:48px;background:#EDE8DF;border-top:1px solid #D8D0C4;
-  display:flex;align-items:center;padding:0 8px;gap:3px;
-  overflow:hidden;flex-shrink:0;margin-top:auto;
-}
+#qrow{display:none;height:48px;background:#EDE8DF;border-top:1px solid #D8D0C4;align-items:center;padding:0 8px;gap:3px;overflow:hidden;flex-shrink:0;margin-top:auto;}
 .cu{font-size:24px;transition:transform .2s;flex-shrink:0;}
 .cu.angry{animation:ba .35s infinite alternate;}
-.cu.happy{animation:jh .45s forwards;}
 @keyframes ba{from{transform:translateY(0)}to{transform:translateY(-7px)}}
 @keyframes jh{0%{transform:translateY(0)}40%{transform:translateY(-13px)}70%{transform:translateY(-4px)}100%{transform:translateY(0)}}
 #cashier{font-size:26px;margin-left:auto;flex-shrink:0;}
 #cashier.clap{animation:jh .45s forwards;}
-
-/* ── Items ────────────────────────────────────────────────────────────────── */
-.item{
-  position:absolute;top:50%;transform:translateY(-50%);
-  width:62px;height:62px;border-radius:11px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-size:25px;cursor:grab;border:2px solid rgba(0,0,0,.1);
-  z-index:10;touch-action:none;
-}
+.item{position:absolute;top:50%;transform:translateY(-50%);width:62px;height:62px;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:25px;cursor:grab;border:2px solid rgba(0,0,0,.1);z-index:10;touch-action:none;}
 .item.picked{cursor:grabbing;z-index:50;box-shadow:0 6px 22px rgba(0,0,0,.22);}
 .il{font-size:8px;color:rgba(0,0,0,.48);font-weight:600;line-height:1;margin-top:1px;}
 .mb{position:absolute;bottom:2px;left:4px;right:4px;height:3px;background:#DDD;border-radius:2px;overflow:hidden;}
 .mf{height:100%;width:100%;background:#64B5F6;border-radius:2px;}
-
-/* ── Toast ────────────────────────────────────────────────────────────────── */
-#toast{
-  position:absolute;top:36%;left:50%;transform:translate(-50%,-50%);
-  background:rgba(20,18,15,.82);color:#fff;
-  padding:8px 18px;border-radius:20px;font-size:14px;font-weight:700;
-  pointer-events:none;opacity:0;transition:opacity .15s;
-  z-index:200;white-space:nowrap;
-}
+#toast{position:absolute;top:36%;left:50%;transform:translate(-50%,-50%);background:rgba(20,18,15,.82);color:#fff;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:700;pointer-events:none;opacity:0;transition:opacity .15s;z-index:200;white-space:nowrap;}
 #toast.show{opacity:1;}
-
-/* ── START SCREEN ─────────────────────────────────────────────────────────── */
-#start-screen{
-  position:absolute;inset:0;
-  background:#FFFBF4;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  gap:0;z-index:400;
-  padding:24px 28px;
-}
-.logo-wrap{
-  width:110px;height:110px;
-  background:#2D6A3F;
-  border-radius:28px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:58px;
-  margin-bottom:20px;
-  box-shadow:0 4px 24px rgba(45,106,63,.35);
-}
-#start-screen h1{
-  font-size:34px;font-weight:800;color:#1A1A1A;
-  letter-spacing:-1px;text-align:center;margin-bottom:8px;
-}
-#start-screen .tagline{
-  font-size:15px;color:#7A6E62;text-align:center;
-  line-height:1.5;margin-bottom:32px;max-width:280px;
-}
-#big-start{
-  width:100%;max-width:300px;
-  background:#2D6A3F;color:#fff;
-  border:none;border-radius:18px;
-  padding:20px 0;font-size:22px;font-weight:800;
-  cursor:pointer;font-family:inherit;
-  letter-spacing:-.3px;
-  box-shadow:0 6px 24px rgba(45,106,63,.4);
-  transition:transform .12s,box-shadow .12s;
-}
-#big-start:active{transform:scale(.96);box-shadow:0 2px 10px rgba(45,106,63,.3);}
-.how-to{
-  margin-top:24px;display:flex;flex-direction:column;gap:10px;
-  width:100%;max-width:300px;
-}
-.how-row{
-  display:flex;align-items:center;gap:12px;
-  background:#F5F0E8;border-radius:12px;padding:10px 14px;
-}
-.how-icon{font-size:22px;flex-shrink:0;}
-.how-text{font-size:12px;color:#5A5048;line-height:1.4;font-weight:500;}
-
-/* ── OVERLAY (game over / level up) ──────────────────────────────────────── */
-#ovl{
-  position:absolute;inset:0;
-  background:rgba(255,251,244,.97);
-  display:none;flex-direction:column;
-  align-items:center;justify-content:center;
-  gap:12px;padding:20px;z-index:300;
-}
-#ovl.show{display:flex;}
-#ovl h2{font-size:24px;font-weight:800;color:#1A1A1A;letter-spacing:-.5px;}
-#ovl p{font-size:13px;color:#7A6E62;text-align:center;line-height:1.5;}
+#ovl{display:none;position:absolute;inset:0;background:rgba(255,251,244,.97);flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;z-index:300;}
+#ovl h2{font-size:24px;font-weight:800;color:#1A1A1A;}
 .big-e{font-size:54px;}
-.srow{
-  display:flex;gap:16px;background:#fff;
-  border-radius:14px;padding:10px 20px;
-  border:1px solid #EDE6D8;
-}
+.srow{display:flex;gap:16px;background:#fff;border-radius:14px;padding:10px 20px;border:1px solid #EDE6D8;}
 .si{display:flex;flex-direction:column;align-items:center;gap:2px;}
 .sn{font-size:20px;font-weight:800;color:#1A1A1A;}
-.sl{font-size:10px;color:#A89880;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
-.lvlbadge{
-  font-size:12px;color:#7A6E62;
-  background:#F5F0E8;border-radius:8px;padding:4px 12px;font-weight:600;
-}
-#retry-btn{
-  width:100%;max-width:300px;background:#2D6A3F;color:#fff;
-  border:none;border-radius:14px;padding:16px 0;
-  font-size:18px;font-weight:800;cursor:pointer;font-family:inherit;
-  box-shadow:0 4px 18px rgba(45,106,63,.35);
-}
-#retry-btn:active{opacity:.85;}
-#share-result-btn{
-  width:100%;max-width:300px;
-  background:#fff;color:#2D6A3F;
-  border:2px solid #2D6A3F;border-radius:14px;
-  padding:13px 0;font-size:16px;font-weight:700;
-  cursor:pointer;font-family:inherit;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
-#share-result-btn:active{background:#EAF3DE;}
-.share-icon{font-size:18px;}
-.copied-badge{
-  font-size:12px;color:#2D6A3F;font-weight:700;
-  background:#EAF3DE;border-radius:8px;padding:4px 12px;
-  opacity:0;transition:opacity .2s;
-}
+.sl{font-size:10px;color:#A89880;font-weight:600;text-transform:uppercase;}
+.lvlbadge{font-size:12px;color:#7A6E62;background:#F5F0E8;border-radius:8px;padding:4px 12px;font-weight:600;}
+#retry-btn{width:100%;max-width:300px;background:#2D6A3F;color:#fff;border:none;border-radius:14px;padding:16px 0;font-size:18px;font-weight:800;cursor:pointer;font-family:inherit;}
+#share-result-btn{width:100%;max-width:300px;background:#fff;color:#2D6A3F;border:2px solid #2D6A3F;border-radius:14px;padding:13px 0;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;}
+.copied-badge{font-size:12px;color:#2D6A3F;font-weight:700;background:#EAF3DE;border-radius:8px;padding:4px 12px;opacity:0;transition:opacity .2s;}
 .copied-badge.show{opacity:1;}
+#start{position:absolute;inset:0;background:#FFFBF4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;z-index:400;padding:24px 28px;}
+.logo{width:110px;height:110px;background:#2D6A3F;border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:58px;margin-bottom:20px;}
+#start h1{font-size:34px;font-weight:800;color:#1A1A1A;letter-spacing:-1px;text-align:center;margin-bottom:8px;}
+.tag{font-size:15px;color:#7A6E62;text-align:center;line-height:1.5;margin-bottom:32px;max-width:280px;}
+#startbtn{width:100%;max-width:300px;background:#2D6A3F;color:#fff;border:none;border-radius:18px;padding:20px 0;font-size:22px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 24px rgba(45,106,63,.4);}
+.how{margin-top:24px;display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px;}
+.hr{display:flex;align-items:center;gap:12px;background:#F5F0E8;border-radius:12px;padding:10px 14px;}
+.hi{font-size:22px;flex-shrink:0;}
+.ht{font-size:12px;color:#5A5048;line-height:1.4;font-weight:500;}
 </style>
 </head>
 <body>
 <div id="G">
-
-  <!-- HUD -->
-  <div id="hud" style="display:none;">
+  <div id="hud">
     <div class="hb"><span class="hl">Poeng</span><span class="hv" id="sv">0</span></div>
-    <div class="hb"><span class="hl">Combo</span><span class="hv" id="cv">×1</span></div>
-    <div class="hb"><span class="hl">Nivå</span><span class="hv" id="lv">1</span></div>
+    <div class="hb"><span class="hl">Combo</span><span class="hv" id="cv">x1</span></div>
+    <div class="hb"><span class="hl">Niva</span><span class="hv" id="lv">1</span></div>
     <div class="hb"><span class="hl">Liv</span><span class="hv" id="livv">❤❤❤</span></div>
-    <button id="share-hud-btn" onclick="doShare()">🔗 Del</button>
+    <button id="share-btn" onclick="doShare()">🔗 Del</button>
   </div>
-  <div id="cbar" style="display:none;"><div id="cfill"></div></div>
-  <div id="pmrow" style="display:none;">
-    <span id="pmlbl">☺ Køen:</span>
-    <div id="pmbar"><div id="pmfill"></div></div>
-  </div>
-
-  <!-- Belt -->
-  <div id="belt" style="display:none;">
+  <div id="cbar"><div id="cfill"></div></div>
+  <div id="pmrow"><span id="pmlbl">Koen:</span><div id="pmbar"><div id="pmfill"></div></div></div>
+  <div id="belt">
     <canvas id="bcanvas"></canvas>
     <button id="stopbtn">⏸ Stopp</button>
   </div>
-
-  <!-- Power-ups -->
-  <div id="purow" style="display:none;">
+  <div id="purow">
     <button class="pu" id="pu-slow" onclick="usePU('slow')">🐢 Sakte<span class="pc" id="pc-slow">2</span></button>
     <button class="pu" id="pu-hint" onclick="usePU('hint')">💡 Hint<span class="pc" id="pc-hint">3</span></button>
     <button class="pu" id="pu-frys" onclick="usePU('frys')">❄️ Frys<span class="pc" id="pc-frys">1</span></button>
   </div>
-
-  <!-- Bins -->
-  <div id="bins" style="display:none;"></div>
-
-  <!-- Queue -->
-  <div id="qrow" style="display:none;"><span id="cashier">🧑‍💼</span></div>
-
-  <!-- Toast -->
+  <div id="bins"></div>
+  <div id="qrow"><span id="cashier">🧑‍💼</span></div>
   <div id="toast"></div>
-
-  <!-- Game-over overlay -->
   <div id="ovl">
-    <div class="big-e" id="ovl-e">🛒</div>
-    <h2 id="ovl-title">Båndet tok deg!</h2>
+    <div class="big-e">🛒</div>
+    <h2>Båndet tok deg!</h2>
     <div class="lvlbadge" id="ovl-lvl"></div>
     <div class="srow" id="ovl-stats"></div>
-    <p id="ovl-share-text"></p>
+    <p id="ovl-txt" style="font-size:13px;color:#7A6E62;text-align:center;"></p>
     <div class="copied-badge" id="copied-badge">✓ Lenke kopiert!</div>
-    <button id="share-result-btn" onclick="doShare()"><span class="share-icon">🔗</span> Del med venner</button>
+    <button id="share-result-btn" onclick="doShare()">🔗 Del med venner</button>
     <button id="retry-btn" onclick="startGame()">Spill igjen</button>
   </div>
-
-  <!-- START SCREEN -->
-  <div id="start-screen">
-    <div class="logo-wrap">🛒</div>
+  <div id="start">
+    <div class="logo">🛒</div>
     <h1>Poselosen</h1>
-    <p class="tagline">Sorter varene i riktig handlepose før båndet tar dem!</p>
-    <button id="big-start" onclick="startGame()">▶ Start spillet</button>
-    <div class="how-to">
-      <div class="how-row">
-        <span class="how-icon">👆</span>
-        <span class="how-text">Dra varene fra båndet ned i riktig pose</span>
-      </div>
-      <div class="how-row">
-        <span class="how-icon">⚡</span>
-        <span class="how-text">Båndet går raskere for hvert nivå – hold tritt!</span>
-      </div>
-      <div class="how-row">
-        <span class="how-icon">💥</span>
-        <span class="how-text">Feil pose eller vare som faller = mister liv</span>
-      </div>
+    <p class="tag">Sorter varene i riktig handlepose for båndet tar dem!</p>
+    <button id="startbtn" onclick="startGame()">▶ Start spillet</button>
+    <div class="how">
+      <div class="hr"><span class="hi">👆</span><span class="ht">Dra varene fra båndet ned i riktig pose</span></div>
+      <div class="hr"><span class="hi">⚡</span><span class="ht">Båndet går raskere for hvert nivå</span></div>
+      <div class="hr"><span class="hi">💥</span><span class="ht">Feil pose eller vare som faller = mister liv</span></div>
     </div>
   </div>
-
-</div><!-- /#G -->
-
+</div>
 <script>
-/* ═══════════════════════════════════════════════════════════════════════════
-   DATA
-═══════════════════════════════════════════════════════════════════════════ */
-const CATS=[
-  {id:'mat',     lbl:'Mat',           e:'🥫',bg:'#FFF9E6',items:[{e:'🥫',n:'Hermetikk'},{e:'🍞',n:'Brød'},{e:'🍝',n:'Pasta'},{e:'🥜',n:'Nøtter'},{e:'🍫',n:'Sjokolade'}]},
-  {id:'ikkemat', lbl:'Ikke-mat',      e:'🧴',bg:'#FCE4EC',items:[{e:'🧴',n:'Sjampo'},{e:'🧻',n:'Dopapir'},{e:'🧽',n:'Svamp'},{e:'🪥',n:'Tannbørste'},{e:'🧹',n:'Feiekost'}]},
-  {id:'frukt',   lbl:'Frukt & grønt', e:'🥦',bg:'#E8F5E9',items:[{e:'🍎',n:'Eple'},{e:'🍌',n:'Banan'},{e:'🥦',n:'Brokkoli'},{e:'🥕',n:'Gulrot'},{e:'🍇',n:'Druer'},{e:'🍅',n:'Tomat'},{e:'🥑',n:'Avokado'}]},
-  {id:'kjoel',   lbl:'Kjølevarer',    e:'🥛',bg:'#E3F2FD',items:[{e:'🥛',n:'Melk'},{e:'🧀',n:'Ost'},{e:'🥚',n:'Egg'},{e:'🍦',n:'Yoghurt'}],cold:true},
-  {id:'torr',    lbl:'Tørrvarer',     e:'🍝',bg:'#FFF3E0',items:[{e:'🌾',n:'Mel'},{e:'🍚',n:'Ris'},{e:'☕',n:'Kaffe'},{e:'🍵',n:'Te'},{e:'🫙',n:'Krydder'}]},
-  {id:'hygiene', lbl:'Husholdning',   e:'🧹',bg:'#F3E5F5',items:[{e:'🧼',n:'Såpe'},{e:'🪒',n:'Barbermaskin'},{e:'🧴',n:'Krem'},{e:'🧻',n:'Tørkepapir'}]},
-  {id:'kjott',   lbl:'Kjøtt & fisk',  e:'🥩',bg:'#FCE8E8',items:[{e:'🥩',n:'Biff'},{e:'🍗',n:'Kylling'},{e:'🐟',n:'Laks'},{e:'🦐',n:'Reker'},{e:'🌭',n:'Pølse'}],cold:true},
-  {id:'skjoer',  lbl:'Forsiktig! 🥚', e:'📦',bg:'#FFF8E1',items:[{e:'🥚',n:'Egg'},{e:'🍷',n:'Vin'},{e:'🍾',n:'Flaske'},{e:'🧃',n:'Juice'}],fragile:true},
+var CATS=[
+  {id:'mat',lbl:'Mat',e:'🥫',bg:'#FFF9E6',items:[{e:'🥫',n:'Hermetikk'},{e:'🍞',n:'Brod'},{e:'🍝',n:'Pasta'},{e:'🥜',n:'Notter'},{e:'🍫',n:'Sjokolade'}]},
+  {id:'ikkemat',lbl:'Ikke-mat',e:'🧴',bg:'#FCE4EC',items:[{e:'🧴',n:'Sjampo'},{e:'🧻',n:'Dopapir'},{e:'🧽',n:'Svamp'},{e:'🪥',n:'Tannborste'},{e:'🧹',n:'Feiekost'}]},
+  {id:'frukt',lbl:'Frukt&gront',e:'🥦',bg:'#E8F5E9',items:[{e:'🍎',n:'Eple'},{e:'🍌',n:'Banan'},{e:'🥦',n:'Brokkoli'},{e:'🥕',n:'Gulrot'},{e:'🍇',n:'Druer'},{e:'🍅',n:'Tomat'},{e:'🥑',n:'Avokado'}]},
+  {id:'kjoel',lbl:'Kjolevarer',e:'🥛',bg:'#E3F2FD',items:[{e:'🥛',n:'Melk'},{e:'🧀',n:'Ost'},{e:'🥚',n:'Egg'},{e:'🍦',n:'Yoghurt'}],cold:true},
+  {id:'torr',lbl:'Torrvarer',e:'🍝',bg:'#FFF3E0',items:[{e:'🌾',n:'Mel'},{e:'🍚',n:'Ris'},{e:'☕',n:'Kaffe'},{e:'🍵',n:'Te'},{e:'🫙',n:'Krydder'}]},
+  {id:'hygiene',lbl:'Husholdning',e:'🧹',bg:'#F3E5F5',items:[{e:'🧼',n:'Sape'},{e:'🪒',n:'Barbermaskin'},{e:'🧴',n:'Krem'},{e:'🧻',n:'Torkepapir'}]},
+  {id:'kjott',lbl:'Kjott&fisk',e:'🥩',bg:'#FCE8E8',items:[{e:'🥩',n:'Biff'},{e:'🍗',n:'Kylling'},{e:'🐟',n:'Laks'},{e:'🦐',n:'Reker'},{e:'🌭',n:'Polse'}],cold:true},
+  {id:'skjoer',lbl:'Forsiktig!',e:'📦',bg:'#FFF8E1',items:[{e:'🥚',n:'Egg'},{e:'🍷',n:'Vin'},{e:'🍾',n:'Flaske'},{e:'🧃',n:'Juice'}],fragile:true}
 ];
-
-const LEVELS=[
-  {name:'Enkel handletur',cats:['mat','ikkemat'],                             spd:7000,spawnMs:3200,toNext:6},
-  {name:'Ukeshandel',     cats:['frukt','kjoel','torr'],                      spd:5800,spawnMs:2600,toNext:10},
-  {name:'Stress i kassa', cats:['frukt','kjoel','torr','hygiene'],            spd:4600,spawnMs:2100,toNext:14},
-  {name:'Familielørdag',  cats:['frukt','kjott','kjoel','torr','ikkemat'],    spd:3600,spawnMs:1700,toNext:18},
-  {name:'Kassemareritt',  cats:['frukt','kjott','kjoel','torr','hygiene','ikkemat','skjoer'],spd:2700,spawnMs:1300,toNext:999},
+var LEVELS=[
+  {name:'Enkel handletur',cats:['mat','ikkemat'],spd:7000,spawnMs:3200,toNext:6},
+  {name:'Ukeshandel',cats:['frukt','kjoel','torr'],spd:5800,spawnMs:2600,toNext:10},
+  {name:'Stress i kassa',cats:['frukt','kjoel','torr','hygiene'],spd:4600,spawnMs:2100,toNext:14},
+  {name:'Familielordag',cats:['frukt','kjott','kjoel','torr','ikkemat'],spd:3600,spawnMs:1700,toNext:18},
+  {name:'Kassemareritt',cats:['frukt','kjott','kjoel','torr','hygiene','ikkemat','skjoer'],spd:2700,spawnMs:1300,toNext:999}
 ];
-
-const CUSTS=['👩','👨','👴','👵','🧑','👩‍🦱','👨‍🦳','🧔','🧒','👩‍🍼'];
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════════════════════════════ */
-let score=0,lives=3,lvl=0,combo=1,comboCount=0,ptsLvl=0;
-let patience=100;
-let stopped=false,stopSecs=0,stopTimer=null;
-let gameOn=false;
-let activeCats=[];
-let puCounts={slow:2,hint:3,frys:1};
-let patTimer=null,spawnInt=null;
-let custEls=[];
-let pickedItem=null,dragX=0,dragY=0;
-let beltPaused=false,beltSpeedMul=1;
-let itemPool=[];
-let maxCombo=1;
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   DOM REFS
-═══════════════════════════════════════════════════════════════════════════ */
-const G=document.getElementById('G');
-const beltEl=document.getElementById('belt');
-const binsEl=document.getElementById('bins');
-const toastEl=document.getElementById('toast');
-const ovlEl=document.getElementById('ovl');
-const startScreenEl=document.getElementById('start-screen');
-const cfillEl=document.getElementById('cfill');
-const pmfillEl=document.getElementById('pmfill');
-const qrowEl=document.getElementById('qrow');
-const cashierEl=document.getElementById('cashier');
-const stopbtnEl=document.getElementById('stopbtn');
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   AUDIO
-═══════════════════════════════════════════════════════════════════════════ */
-function snd(freq,dur,type='sine',vol=0.25){
-  try{
-    const ac=window._ac||(window._ac=new(window.AudioContext||window.webkitAudioContext)());
-    if(ac.state==='suspended')ac.resume();
-    const o=ac.createOscillator(),g=ac.createGain();
-    o.connect(g);g.connect(ac.destination);
-    o.type=type;o.frequency.value=freq;
-    g.gain.setValueAtTime(vol,ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur);
-    o.start();o.stop(ac.currentTime+dur);
-  }catch(e){}
-}
-const sndOK=()=>{snd(660,.07);setTimeout(()=>snd(880,.1),75);};
-const sndBad=()=>snd(200,.22,'sawtooth',.16);
-const sndFall=()=>{snd(300,.12,'square',.1);setTimeout(()=>snd(180,.18,'square',.07),100);};
-const sndCrash=()=>{snd(140,.06,'sawtooth',.35);setTimeout(()=>snd(100,.28,'sawtooth',.22),45);};
-const sndCombo=()=>[440,550,660,880].forEach((f,i)=>setTimeout(()=>snd(f,.1,undefined,.2),i*75));
-const sndBip=()=>snd(880,.05,undefined,.13);
-const sndApplause=()=>{for(let i=0;i<8;i++)setTimeout(()=>snd(200+Math.random()*700,.07,'square',.04),i*55);};
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════════════════════════════════════════ */
-function hud(){
-  document.getElementById('sv').textContent=score;
-  document.getElementById('cv').textContent='×'+combo;
-  document.getElementById('lv').textContent=lvl+1;
-  document.getElementById('livv').textContent='❤'.repeat(Math.max(0,lives));
-}
-function updatePM(){
-  pmfillEl.style.width=patience+'%';
-  pmfillEl.style.background=patience>55?'#2D6A3F':patience>28?'#E67E22':'#C0392B';
-}
-function toast(msg,dur=900){
-  toastEl.textContent=msg;
-  toastEl.classList.add('show');
-  clearTimeout(toastEl._t);
-  toastEl._t=setTimeout(()=>toastEl.classList.remove('show'),dur);
-}
-function showGameUI(show){
-  const ids=['hud','cbar','pmrow','belt','purow','bins','qrow'];
-  ids.forEach(id=>document.getElementById(id).style.display=show?(id==='hud'?'flex':id==='bins'||id==='purow'?'flex':'flex'):'none');
-  if(!show){['hud','cbar','pmrow','belt','purow','bins','qrow'].forEach(id=>{document.getElementById(id).style.display='none';});}
-  else{
-    document.getElementById('hud').style.display='flex';
-    document.getElementById('cbar').style.display='block';
-    document.getElementById('pmrow').style.display='flex';
-    document.getElementById('belt').style.display='block';
-    document.getElementById('purow').style.display='flex';
-    document.getElementById('bins').style.display='flex';
-    document.getElementById('qrow').style.display='flex';
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   SHARE
-═══════════════════════════════════════════════════════════════════════════ */
-function doShare(){
-  const url=window.location.href.split('?')[0].split('#')[0];
-  const text=`Jeg klarte ${score} poeng i Poselosen! 🛒 Klarer du mer?`;
-  if(navigator.share){
-    navigator.share({title:'Poselosen 🛒',text,url}).catch(()=>{});
-  } else {
-    navigator.clipboard.writeText(url).then(()=>{
-      const badge=document.getElementById('copied-badge');
-      badge.classList.add('show');
-      setTimeout(()=>badge.classList.remove('show'),2200);
-    }).catch(()=>{
-      prompt('Kopier denne lenken:',url);
-    });
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   CUSTOMERS
-═══════════════════════════════════════════════════════════════════════════ */
-function spawnCustomers(){
-  qrowEl.innerHTML='';custEls=[];
-  const n=Math.min(4+lvl,10);
-  for(let i=0;i<n;i++){
-    const el=document.createElement('span');
-    el.className='cu';
-    el.textContent=CUSTS[Math.floor(Math.random()*CUSTS.length)];
-    qrowEl.appendChild(el);custEls.push(el);
-  }
-  qrowEl.appendChild(cashierEl);
-}
-const angryCustomers=()=>custEls.forEach((c,i)=>setTimeout(()=>c.classList.add('angry'),i*40));
-function calmCustomers(){
-  custEls.forEach(c=>c.classList.remove('angry'));
-  cashierEl.classList.add('clap');
-  setTimeout(()=>cashierEl.classList.remove('clap'),500);
-  sndApplause();
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   BINS
-═══════════════════════════════════════════════════════════════════════════ */
-function renderBins(){
-  binsEl.innerHTML='';
-  activeCats.forEach(cat=>{
-    const b=document.createElement('div');
-    b.className='bin';b.dataset.id=cat.id;b.style.background=cat.bg;
-    b.innerHTML=`<span class="be">${cat.e}</span><span class="bl">${cat.lbl}</span>`;
-    binsEl.appendChild(b);
-  });
-}
-function flashBin(id,cls){
-  const b=binsEl.querySelector('[data-id="'+id+'"]');
-  if(!b)return;b.classList.add(cls);setTimeout(()=>b.classList.remove(cls),420);
-}
-function glowBin(id){
-  const b=binsEl.querySelector('[data-id="'+id+'"]');
-  if(!b)return;b.classList.add('hl2');setTimeout(()=>b.classList.remove('hl2'),600);
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   ITEMS & BELT
-═══════════════════════════════════════════════════════════════════════════ */
-function spawnItem(){
-  if(!gameOn)return;
-  const cat=activeCats[Math.floor(Math.random()*activeCats.length)];
-  const it=cat.items[Math.floor(Math.random()*cat.items.length)];
-  const el=document.createElement('div');
-  el.className='item';el.style.background=cat.bg;
-  el.dataset.catId=cat.id;
-  el.dataset.fragile=cat.fragile?'1':'';
-  el.dataset.cold=cat.cold?'1':'';
-  el.innerHTML=`<span>${it.e}</span><span class="il">${it.n}</span>`;
-  if(cat.cold){el.innerHTML+=`<div class="mb"><div class="mf"></div></div>`;}
-  el.style.left=beltEl.offsetWidth+'px';
-  beltEl.appendChild(el);
-  itemPool.push(el);
-  setupDrag(el);sndBip();animateItem(el);
-}
-
-function animateItem(el){
-  const beltW=beltEl.offsetWidth;
-  const totalDist=beltW+72;
-  let dist=0,lastTs=null,meltPct=100;
-  function tick(ts){
-    if(!gameOn){el.remove();itemPool=itemPool.filter(x=>x!==el);return;}
-    if(el.dataset.picked==='1'){lastTs=ts;requestAnimationFrame(tick);return;}
-    if(!lastTs)lastTs=ts;
-    const dt=ts-lastTs;lastTs=ts;
-    if(!beltPaused){
-      const spd=(beltW+72)/((LEVELS[lvl].spd/1000));
-      dist+=spd*(dt/1000)*beltSpeedMul;
-      el.style.left=(beltW-dist)+'px';
-      if(el.dataset.cold==='1'){
-        meltPct=Math.max(0,100-(dist/totalDist*115));
-        const mf=el.querySelector('.mf');
-        if(mf){mf.style.width=meltPct+'%';mf.style.background=meltPct>50?'#64B5F6':'#E74C3C';}
-        if(meltPct<=0&&!el.dataset.melted){
-          el.dataset.melted='1';
-          score=Math.max(0,score-5);hud();
-          toast('🧊 Smeltet! –5',800);
-        }
-      }
-    }
-    if(dist>=totalDist){
-      itemPool=itemPool.filter(x=>x!==el);el.remove();
-      if(el.dataset.fragile==='1'){sndCrash();toast('💥 Knust! Mister liv!',900);}
-      else{sndFall();}
-      loseLife();return;
-    }
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   DRAG
-═══════════════════════════════════════════════════════════════════════════ */
-function setupDrag(el){
-  el.addEventListener('pointerdown',e=>{
-    e.preventDefault();e.stopPropagation();
-    if(pickedItem&&pickedItem!==el){releasePicked(pickedItem);}
-    pickedItem=el;
-    el.dataset.picked='1';
-    el.classList.add('picked');
-    el.setPointerCapture(e.pointerId);
-    const r=el.getBoundingClientRect();
-    dragX=e.clientX-r.left;dragY=e.clientY-r.top;
-    el.style.position='fixed';el.style.zIndex='50';
-    el.style.left=(e.clientX-dragX)+'px';el.style.top=(e.clientY-dragY)+'px';
-    binsEl.querySelectorAll('.bin').forEach(b=>b.classList.remove('hl2'));
-  },{passive:false});
-}
-function releasePicked(el){
-  el.classList.remove('picked');el.dataset.picked='0';
-  el.style.removeProperty('position');el.style.removeProperty('left');
-  el.style.removeProperty('top');el.style.removeProperty('z-index');
-}
-window.addEventListener('pointermove',e=>{
-  if(!pickedItem||pickedItem.dataset.picked!=='1')return;
-  e.preventDefault();
-  pickedItem.style.left=(e.clientX-dragX)+'px';
-  pickedItem.style.top=(e.clientY-dragY)+'px';
-  binsEl.querySelectorAll('.bin').forEach(b=>{
-    const r=b.getBoundingClientRect();
-    b.classList.toggle('hl2',e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom);
-  });
-},{passive:false});
-window.addEventListener('pointerup',e=>{
-  if(!pickedItem||pickedItem.dataset.picked!=='1')return;
-  const el=pickedItem;
-  releasePicked(el);pickedItem=null;
-  binsEl.querySelectorAll('.bin').forEach(b=>b.classList.remove('hl2'));
-  let dropped=null;
-  binsEl.querySelectorAll('.bin').forEach(b=>{
-    const r=b.getBoundingClientRect();
-    if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)dropped=b;
-  });
-  if(dropped){
-    dropped.dataset.id===el.dataset.catId?onCorrect(el,dropped.dataset.id):onWrong(el,dropped.dataset.id);
-  }
-},{passive:false});
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   SCORING
-═══════════════════════════════════════════════════════════════════════════ */
-function onCorrect(el,catId){
-  sndOK();flashBin(catId,'cf');
-  comboCount++;
-  const prev=combo;
-  combo=comboCount>=20?4:comboCount>=10?3:comboCount>=5?2:1;
-  if(combo>maxCombo)maxCombo=combo;
-  if(combo>prev){
-    const msgs=['','','✅ Ryddig kunde! ×2','⚡ Superpakking! ×3','🏆 Poselos mester! ×4'];
-    toast(msgs[combo],1100);sndCombo();
-  } else {toast('✅ +'+(10*combo),600);}
-  score+=10*combo;ptsLvl++;
-  patience=Math.min(100,patience+4);
-  cfillEl.style.width=Math.min(100,(comboCount/20)*100)+'%';
-  hud();updatePM();
-  el.style.transition='opacity .18s,transform .18s';
-  el.style.opacity='0';el.style.transform='translateY(-50%) scale(1.35)';
-  itemPool=itemPool.filter(i=>i!==el);
-  setTimeout(()=>el.remove(),200);
-  checkLvlUp();
-}
-function onWrong(el,binId){
-  sndBad();flashBin(binId,'wf');
-  const wasCombo=combo>1;
-  comboCount=0;combo=1;cfillEl.style.width='0%';
-  score=Math.max(0,score-10);patience=Math.max(0,patience-15);
-  if(el.dataset.fragile==='1'){
-    score=Math.max(0,score-10);sndCrash();
-    toast('💥 Feil pose – knust! –20',900);
-  } else {
-    toast(wasCombo?'❌ Combo brutt! –10':'❌ Feil pose! –10',800);
-  }
-  hud();updatePM();
-}
-function loseLife(){
-  if(!gameOn)return;
-  lives--;comboCount=0;combo=1;cfillEl.style.width='0%';hud();
-  if(lives<=0)endGame();
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   LEVEL UP
-═══════════════════════════════════════════════════════════════════════════ */
-function checkLvlUp(){
-  if(lvl>=LEVELS.length-1||ptsLvl<LEVELS[lvl].toNext)return;
-  lvl++;ptsLvl=0;
-  clearInterval(spawnInt);
-  toast('🎉 Nivå opp! '+LEVELS[lvl].name,1500);sndCombo();
-  cleanBelt();
-  setTimeout(()=>{setupLevel();startSpawn();},1100);
-}
-function cleanBelt(){
-  itemPool.forEach(el=>el.remove());itemPool=[];pickedItem=null;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   STOP BUTTON
-═══════════════════════════════════════════════════════════════════════════ */
-stopbtnEl.addEventListener('click',()=>{
-  if(!gameOn)return;
-  if(!stopped){
-    stopped=true;beltPaused=true;
-    stopbtnEl.classList.add('on');stopbtnEl.textContent='▶ Fortsett';
-    stopSecs=0;
-    stopTimer=setInterval(()=>{
-      stopSecs++;patience=Math.max(0,patience-9);updatePM();
-      if(stopSecs>=2)angryCustomers();
-      if(patience<=0&&gameOn){clearInterval(stopTimer);loseLife();toast('😤 Kunden mistet tålmodigheten!',950);}
-    },1000);
-  } else {
-    doResume();
-    if(stopSecs<2){calmCustomers();toast('👏 Rask avslutning!',900);}
-  }
-});
-function doResume(){
-  stopped=false;beltPaused=false;
-  clearInterval(stopTimer);
-  stopbtnEl.classList.remove('on');stopbtnEl.textContent='⏸ Stopp';
-  custEls.forEach(c=>c.classList.remove('angry'));
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   POWER-UPS
-═══════════════════════════════════════════════════════════════════════════ */
-function usePU(type){
-  if(!gameOn||puCounts[type]<=0)return;
-  puCounts[type]--;
-  document.getElementById('pc-'+type).textContent=puCounts[type];
-  document.getElementById('pu-'+type).disabled=puCounts[type]<=0;
-  if(type==='slow'){
-    beltSpeedMul=.45;toast('🐢 Sakte i 5 sekunder!',800);
-    setTimeout(()=>{beltSpeedMul=1;},5000);
-  }
-  if(type==='hint'){
-    const live=itemPool.filter(el=>document.body.contains(el));
-    if(live.length){glowBin(live[0].dataset.catId);toast('💡 Den tilhører der!',700);}
-    else{toast('💡 Ingen varer på båndet',700);}
-  }
-  if(type==='frys'){
-    if(stopped){
-      puCounts[type]++;document.getElementById('pc-frys').textContent=puCounts[type];
-      document.getElementById('pu-frys').disabled=false;
-      toast('❄️ Båndet er allerede stoppet',700);return;
-    }
-    beltPaused=true;toast('❄️ Fryst i 3 sekunder!',800);
-    setTimeout(()=>{if(gameOn&&!stopped)beltPaused=false;},3000);
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   PATIENCE TIMER
-═══════════════════════════════════════════════════════════════════════════ */
-function startPatTimer(){
-  clearInterval(patTimer);
-  patTimer=setInterval(()=>{
-    if(!gameOn)return;
-    if(!beltPaused){
-      patience=Math.max(0,patience-(0.35+lvl*0.12));updatePM();
-      if(patience<=0){
-        clearInterval(patTimer);
-        loseLife();toast('😤 Tålmodigheten er brukt opp!',950);
-        if(gameOn){patience=50;updatePM();startPatTimer();}
-      }
-    }
-  },400);
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   SETUP & GAME FLOW
-═══════════════════════════════════════════════════════════════════════════ */
-function setupLevel(){
-  activeCats=LEVELS[lvl].cats.map(id=>CATS.find(c=>c.id===id));
-  renderBins();hud();
-}
-function startSpawn(){
-  clearInterval(spawnInt);
-  spawnItem();
-  spawnInt=setInterval(spawnItem,LEVELS[lvl].spawnMs);
-}
-
-function startGame(){
-  score=0;lives=3;lvl=0;combo=1;comboCount=0;ptsLvl=0;maxCombo=1;
-  patience=100;stopped=false;beltPaused=false;beltSpeedMul=1;
-  puCounts={slow:2,hint:3,frys:1};
-  pickedItem=null;itemPool=[];
-  ['slow','hint','frys'].forEach(k=>{
-    document.getElementById('pc-'+k).textContent=puCounts[k];
-    document.getElementById('pu-'+k).disabled=false;
-  });
-  beltEl.querySelectorAll('.item').forEach(e=>e.remove());
-  stopbtnEl.classList.remove('on');stopbtnEl.textContent='⏸ Stopp';
-  cfillEl.style.width='0%';
-  startScreenEl.style.display='none';
-  ovlEl.classList.remove('show');
-  showGameUI(true);
-  gameOn=true;hud();updatePM();
-  setupLevel();spawnCustomers();startPatTimer();startSpawn();
-}
-
-function endGame(){
-  gameOn=false;beltPaused=true;
-  clearInterval(spawnInt);clearInterval(patTimer);clearInterval(stopTimer);
-  cleanBelt();
-  const lvlName=LEVELS[Math.min(lvl,LEVELS.length-1)].name;
-  document.getElementById('ovl-e').textContent='🛒';
-  document.getElementById('ovl-title').textContent='Båndet tok deg!';
-  document.getElementById('ovl-lvl').textContent=lvlName;
-  document.getElementById('ovl-stats').innerHTML=`
-    <div class="si"><span class="sn">${score}</span><span class="sl">Poeng</span></div>
-    <div class="si"><span class="sn">Nivå ${lvl+1}</span><span class="sl">Nivå</span></div>
-    <div class="si"><span class="sn">×${maxCombo}</span><span class="sl">Maks combo</span></div>
-  `;
-  document.getElementById('ovl-share-text').textContent=
-    `Jeg klarte ${score} poeng i Poselosen! Klarer du mer? 🛒`;
-  document.getElementById('copied-badge').classList.remove('show');
-  ovlEl.classList.add('show');
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   BELT STRIPE ANIMATION (canvas)
-═══════════════════════════════════════════════════════════════════════════ */
-(function(){
-  const canvas=document.getElementById('bcanvas');
-  const ctx=canvas.getContext('2d');
-  let off=0;
-  function draw(){
-    canvas.width=beltEl.offsetWidth;canvas.height=beltEl.offsetHeight;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    if(gameOn&&!beltPaused)off=(off+beltSpeedMul*1.8)%30;
-    ctx.fillStyle='rgba(0,0,0,0.055)';
-    for(let x=-30+off;x<canvas.width+30;x+=30)ctx.fillRect(x,0,2,canvas.height);
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
+var CUSTS=['👩','👨','👴','👵','🧑','👩‍🦱','👨‍🦳','🧔','🧒'];
+var score=0,lives=3,lvl=0,combo=1,comboCount=0,ptsLvl=0,patience=100;
+var stopped=false,stopSecs=0,stopTimer=null,gameOn=false;
+var activeCats=[],puCounts={slow:2,hint:3,frys:1};
+var patTimer=null,spawnInt=null,custEls=[];
+var pickedItem=null,dragX=0,dragY=0,beltPaused=false,beltSpeedMul=1;
+var itemPool=[],maxCombo=1;
+var beltEl=document.getElementById('belt');
+var binsEl=document.getElementById('bins');
+var toastEl=document.getElementById('toast');
+var ovlEl=document.getElementById('ovl');
+var startEl=document.getElementById('start');
+var cfillEl=document.getElementById('cfill');
+var pmfillEl=document.getElementById('pmfill');
+var qrowEl=document.getElementById('qrow');
+var cashierEl=document.getElementById('cashier');
+var stopbtnEl=document.getElementById('stopbtn');
+function ac(){try{if(!window._ac)window._ac=new(window.AudioContext||window.webkitAudioContext)();if(window._ac.state==='suspended')window._ac.resume();return window._ac;}catch(e){return null;}}
+function snd(freq,dur,type,vol){type=type||'sine';vol=vol||0.25;var a=ac();if(!a)return;var o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(vol,a.currentTime);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+dur);o.start();o.stop(a.currentTime+dur);}
+function sndOK(){snd(660,.07);setTimeout(function(){snd(880,.1);},75);}
+function sndBad(){snd(200,.22,'sawtooth',.16);}
+function sndFall(){snd(300,.12,'square',.1);setTimeout(function(){snd(180,.18,'square',.07);},100);}
+function sndCrash(){snd(140,.06,'sawtooth',.35);setTimeout(function(){snd(100,.28,'sawtooth',.22);},45);}
+function sndCombo(){[440,550,660,880].forEach(function(f,i){setTimeout(function(){snd(f,.1,'sine',.2);},i*75);});}
+function sndBip(){snd(880,.05,'sine',.13);}
+function sndApplause(){for(var i=0;i<8;i++){setTimeout(function(){snd(200+Math.random()*700,.07,'square',.04);},i*55);}}
+function hud(){document.getElementById('sv').textContent=score;document.getElementById('cv').textContent='x'+combo;document.getElementById('lv').textContent=lvl+1;document.getElementById('livv').textContent='❤'.repeat(Math.max(0,lives));}
+function updatePM(){pmfillEl.style.width=patience+'%';pmfillEl.style.background=patience>55?'#2D6A3F':patience>28?'#E67E22':'#C0392B';}
+function toast(msg,dur){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastEl._t);toastEl._t=setTimeout(function(){toastEl.classList.remove('show');},dur||900);}
+function showUI(show){var els=['hud','cbar','pmrow','belt','purow','bins','qrow'];els.forEach(function(id){var el=document.getElementById(id);if(show){el.style.display=id==='cbar'||id==='belt'?'block':'flex';}else{el.style.display='none';}});}
+function doShare(){var url=window.location.href.split('?')[0].split('#')[0];var txt='Jeg klarte '+score+' poeng i Poselosen! Klarer du mer? 🛒';if(navigator.share){navigator.share({title:'Poselosen 🛒',text:txt,url:url}).catch(function(){});}else{navigator.clipboard.writeText(url).then(function(){var b=document.getElementById('copied-badge');b.classList.add('show');setTimeout(function(){b.classList.remove('show');},2200);}).catch(function(){prompt('Kopier lenken:',url);});}}
+function spawnCustomers(){qrowEl.innerHTML='';custEls=[];var n=Math.min(4+lvl,9);for(var i=0;i<n;i++){var el=document.createElement('span');el.className='cu';el.textContent=CUSTS[Math.floor(Math.random()*CUSTS.length)];qrowEl.appendChild(el);custEls.push(el);}qrowEl.appendChild(cashierEl);}
+function angryCustomers(){custEls.forEach(function(c,i){setTimeout(function(){c.classList.add('angry');},i*40);});}
+function calmCustomers(){custEls.forEach(function(c){c.classList.remove('angry');});cashierEl.classList.add('clap');setTimeout(function(){cashierEl.classList.remove('clap');},500);sndApplause();}
+function renderBins(){binsEl.innerHTML='';activeCats.forEach(function(cat){var b=document.createElement('div');b.className='bin';b.dataset.id=cat.id;b.style.background=cat.bg;b.innerHTML='<span class="be">'+cat.e+'</span><span class="bl">'+cat.lbl+'</span>';binsEl.appendChild(b);});}
+function flashBin(id,cls){var b=binsEl.querySelector('[data-id="'+id+'"]');if(!b)return;b.classList.add(cls);setTimeout(function(){b.classList.remove(cls);},420);}
+function glowBin(id){var b=binsEl.querySelector('[data-id="'+id+'"]');if(!b)return;b.classList.add('hl2');setTimeout(function(){b.classList.remove('hl2');},600);}
+function spawnItem(){if(!gameOn)return;var cat=activeCats[Math.floor(Math.random()*activeCats.length)];var it=cat.items[Math.floor(Math.random()*cat.items.length)];var el=document.createElement('div');el.className='item';el.style.background=cat.bg;el.dataset.catId=cat.id;el.dataset.fragile=cat.fragile?'1':'';el.dataset.cold=cat.cold?'1':'';el.innerHTML='<span>'+it.e+'</span><span class="il">'+it.n+'</span>';if(cat.cold){el.innerHTML+='<div class="mb"><div class="mf"></div></div>';}el.style.left=beltEl.offsetWidth+'px';beltEl.appendChild(el);itemPool.push(el);setupDrag(el);sndBip();animateItem(el);}
+function animateItem(el){var beltW=beltEl.offsetWidth;var totalDist=beltW+72;var dist=0,lastTs=null,meltPct=100;function tick(ts){if(!gameOn){el.remove();itemPool=itemPool.filter(function(x){return x!==el;});return;}if(el.dataset.picked==='1'){lastTs=ts;requestAnimationFrame(tick);return;}if(!lastTs)lastTs=ts;var dt=ts-lastTs;lastTs=ts;if(!beltPaused){var spd=(beltW+72)/(LEVELS[lvl].spd/1000);dist+=spd*(dt/1000)*beltSpeedMul;el.style.left=(beltW-dist)+'px';if(el.dataset.cold==='1'){meltPct=Math.max(0,100-(dist/totalDist*115));var mf=el.querySelector('.mf');if(mf){mf.style.width=meltPct+'%';mf.style.background=meltPct>50?'#64B5F6':'#E74C3C';}if(meltPct<=0&&!el.dataset.melted){el.dataset.melted='1';score=Math.max(0,score-5);hud();toast('Smeltet! -5',800);}}}if(dist>=totalDist){itemPool=itemPool.filter(function(x){return x!==el;});el.remove();if(el.dataset.fragile==='1'){sndCrash();toast('Knust! Mister liv!',900);}else{sndFall();}loseLife();return;}requestAnimationFrame(tick);}requestAnimationFrame(tick);}
+function setupDrag(el){el.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();if(pickedItem&&pickedItem!==el){releasePicked(pickedItem);}pickedItem=el;el.dataset.picked='1';el.classList.add('picked');el.setPointerCapture(e.pointerId);var r=el.getBoundingClientRect();dragX=e.clientX-r.left;dragY=e.clientY-r.top;el.style.position='fixed';el.style.zIndex='50';el.style.left=(e.clientX-dragX)+'px';el.style.top=(e.clientY-dragY)+'px';binsEl.querySelectorAll('.bin').forEach(function(b){b.classList.remove('hl2');});},{passive:false});}
+function releasePicked(el){el.classList.remove('picked');el.dataset.picked='0';el.style.removeProperty('position');el.style.removeProperty('left');el.style.removeProperty('top');el.style.removeProperty('z-index');}
+window.addEventListener('pointermove',function(e){if(!pickedItem||pickedItem.dataset.picked!=='1')return;e.preventDefault();pickedItem.style.left=(e.clientX-dragX)+'px';pickedItem.style.top=(e.clientY-dragY)+'px';binsEl.querySelectorAll('.bin').forEach(function(b){var r=b.getBoundingClientRect();b.classList.toggle('hl2',e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom);});},{passive:false});
+window.addEventListener('pointerup',function(e){if(!pickedItem||pickedItem.dataset.picked!=='1')return;var el=pickedItem;releasePicked(el);pickedItem=null;binsEl.querySelectorAll('.bin').forEach(function(b){b.classList.remove('hl2');});var dropped=null;binsEl.querySelectorAll('.bin').forEach(function(b){var r=b.getBoundingClientRect();if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)dropped=b;});if(dropped){if(dropped.dataset.id===el.dataset.catId){onCorrect(el,dropped.dataset.id);}else{onWrong(el,dropped.dataset.id);}}},{passive:false});
+function onCorrect(el,catId){sndOK();flashBin(catId,'cf');comboCount++;var prev=combo;combo=comboCount>=20?4:comboCount>=10?3:comboCount>=5?2:1;if(combo>maxCombo)maxCombo=combo;if(combo>prev){var msgs=['','','Ryddig kunde! x2','Superpakking! x3','Poselos mester! x4'];toast(msgs[combo],1100);sndCombo();}else{toast('+'+10*combo,600);}score+=10*combo;ptsLvl++;patience=Math.min(100,patience+4);cfillEl.style.width=Math.min(100,(comboCount/20)*100)+'%';hud();updatePM();el.style.transition='opacity .18s,transform .18s';el.style.opacity='0';el.style.transform='translateY(-50%) scale(1.35)';itemPool=itemPool.filter(function(i){return i!==el;});setTimeout(function(){el.remove();},200);checkLvlUp();}
+function onWrong(el,binId){sndBad();flashBin(binId,'wf');var wasCombo=combo>1;comboCount=0;combo=1;cfillEl.style.width='0%';score=Math.max(0,score-10);patience=Math.max(0,patience-15);if(el.dataset.fragile==='1'){score=Math.max(0,score-10);sndCrash();toast('Feil pose - knust! -20',900);}else{toast(wasCombo?'Combo brutt! -10':'Feil pose! -10',800);}hud();updatePM();}
+function loseLife(){if(!gameOn)return;lives--;comboCount=0;combo=1;cfillEl.style.width='0%';hud();if(lives<=0)endGame();}
+function checkLvlUp(){if(lvl>=LEVELS.length-1||ptsLvl<LEVELS[lvl].toNext)return;lvl++;ptsLvl=0;clearInterval(spawnInt);toast('Niva opp! '+LEVELS[lvl].name,1500);sndCombo();cleanBelt();setTimeout(function(){setupLevel();startSpawn();},1100);}
+function cleanBelt(){itemPool.forEach(function(el){el.remove();});itemPool=[];pickedItem=null;}
+stopbtnEl.addEventListener('click',function(){if(!gameOn)return;if(!stopped){stopped=true;beltPaused=true;stopbtnEl.classList.add('on');stopbtnEl.textContent='▶ Fortsett';stopSecs=0;stopTimer=setInterval(function(){stopSecs++;patience=Math.max(0,patience-9);updatePM();if(stopSecs>=2)angryCustomers();if(patience<=0&&gameOn){clearInterval(stopTimer);loseLife();toast('Kunden mistet talmodigheten!',950);}},1000);}else{doResume();if(stopSecs<2){calmCustomers();toast('Rask avslutning!',900);}}});
+function doResume(){stopped=false;beltPaused=false;clearInterval(stopTimer);stopbtnEl.classList.remove('on');stopbtnEl.textContent='⏸ Stopp';custEls.forEach(function(c){c.classList.remove('angry');});}
+function usePU(type){if(!gameOn||puCounts[type]<=0)return;puCounts[type]--;document.getElementById('pc-'+type).textContent=puCounts[type];document.getElementById('pu-'+type).disabled=puCounts[type]<=0;if(type==='slow'){beltSpeedMul=.45;toast('Sakte i 5 sek!',800);setTimeout(function(){beltSpeedMul=1;},5000);}if(type==='hint'){var live=itemPool.filter(function(el){return document.body.contains(el);});if(live.length){glowBin(live[0].dataset.catId);toast('Den tilhorer der!',700);}else{toast('Ingen varer pa bandet',700);}}if(type==='frys'){if(stopped){puCounts[type]++;document.getElementById('pc-frys').textContent=puCounts[type];document.getElementById('pu-frys').disabled=false;toast('Bandet er allerede stoppet',700);return;}beltPaused=true;toast('Fryst i 3 sek!',800);setTimeout(function(){if(gameOn&&!stopped)beltPaused=false;},3000);}}
+function startPatTimer(){clearInterval(patTimer);patTimer=setInterval(function(){if(!gameOn)return;if(!beltPaused){patience=Math.max(0,patience-(0.35+lvl*0.12));updatePM();if(patience<=0){clearInterval(patTimer);loseLife();toast('Talmodigheten er brukt opp!',950);if(gameOn){patience=50;updatePM();startPatTimer();}}}},400);}
+function setupLevel(){activeCats=LEVELS[lvl].cats.map(function(id){return CATS.find(function(c){return c.id===id;});});renderBins();hud();}
+function startSpawn(){clearInterval(spawnInt);spawnItem();spawnInt=setInterval(spawnItem,LEVELS[lvl].spawnMs);}
+function startGame(){score=0;lives=3;lvl=0;combo=1;comboCount=0;ptsLvl=0;maxCombo=1;patience=100;stopped=false;beltPaused=false;beltSpeedMul=1;puCounts={slow:2,hint:3,frys:1};pickedItem=null;itemPool=[];['slow','hint','frys'].forEach(function(k){document.getElementById('pc-'+k).textContent=puCounts[k];document.getElementById('pu-'+k).disabled=false;});beltEl.querySelectorAll('.item').forEach(function(e){e.remove();});stopbtnEl.classList.remove('on');stopbtnEl.textContent='⏸ Stopp';cfillEl.style.width='0%';startEl.style.display='none';ovlEl.style.display='none';showUI(true);gameOn=true;hud();updatePM();setupLevel();spawnCustomers();startPatTimer();startSpawn();}
+function endGame(){gameOn=false;beltPaused=true;clearInterval(spawnInt);clearInterval(patTimer);clearInterval(stopTimer);cleanBelt();var lvlName=LEVELS[Math.min(lvl,LEVELS.length-1)].name;document.getElementById('ovl-lvl').textContent=lvlName;document.getElementById('ovl-stats').innerHTML='<div class="si"><span class="sn">'+score+'</span><span class="sl">Poeng</span></div><div class="si"><span class="sn">Niva '+(lvl+1)+'</span><span class="sl">Niva</span></div><div class="si"><span class="sn">x'+maxCombo+'</span><span class="sl">Combo</span></div>';document.getElementById('ovl-txt').textContent='Jeg klarte '+score+' poeng i Poselosen! Klarer du mer?';document.getElementById('copied-badge').classList.remove('show');ovlEl.style.display='flex';}
+(function(){var canvas=document.getElementById('bcanvas');var ctx=canvas.getContext('2d');var off=0;function draw(){canvas.width=beltEl.offsetWidth;canvas.height=beltEl.offsetHeight;ctx.clearRect(0,0,canvas.width,canvas.height);if(gameOn&&!beltPaused)off=(off+beltSpeedMul*1.8)%30;ctx.fillStyle='rgba(0,0,0,0.055)';for(var x=-30+off;x<canvas.width+30;x+=30)ctx.fillRect(x,0,2,canvas.height);requestAnimationFrame(draw);}draw();})();
 </script>
 </body>
 </html>
